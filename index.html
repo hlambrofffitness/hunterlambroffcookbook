@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cookbook</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #faf6f0;
+    --warm-white: #fff9f2;
+    --ink: #1a1208;
+    --espresso: #2d1f0e;
+    --amber: #c8760a;
+    --amber-light: #e8a832;
+    --amber-pale: #fef3dc;
+    --sage: #6b7c5c;
+    --sage-light: #eef2ea;
+    --rust: #b84b2f;
+    --rust-light: #fdf0ec;
+    --border: #e8ddd0;
+    --shadow: rgba(45,31,14,0.12);
+    --card-bg: #fffdf9;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── AUTH SCREEN ── */
+  #auth-screen {
+    position: fixed; inset: 0;
+    background: var(--espresso);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+  }
+  .auth-box {
+    text-align: center;
+    padding: 3rem 3.5rem;
+    background: var(--warm-white);
+    border-radius: 4px;
+    max-width: 400px; width: 90%;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+  .auth-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--espresso);
+    letter-spacing: -1px;
+    margin-bottom: 0.25rem;
+  }
+  .auth-tagline { font-size: 0.85rem; color: var(--sage); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2.5rem; }
+  .auth-label { display: block; text-align: left; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--espresso); margin-bottom: 0.5rem; }
+  .auth-input {
+    width: 100%; padding: 0.85rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    background: var(--cream);
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.15em;
+  }
+  .auth-input:focus { border-color: var(--amber); }
+  .auth-btn {
+    margin-top: 1.25rem; width: 100%;
+    padding: 0.9rem;
+    background: var(--espresso);
+    color: var(--cream);
+    border: none; border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .auth-btn:hover { background: var(--amber); }
+  .auth-error { color: var(--rust); font-size: 0.85rem; margin-top: 0.75rem; min-height: 1.2em; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--espresso);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 1.5rem;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+    height: 64px;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 900;
+    color: var(--cream);
+    letter-spacing: -0.5px;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .logo span { color: var(--amber-light); }
+  .search-bar {
+    flex: 1; max-width: 480px;
+    display: flex; align-items: center; gap: 0;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .search-bar input {
+    flex: 1; padding: 0.55rem 1rem;
+    background: transparent; border: none;
+    color: var(--cream); font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; outline: none;
+  }
+  .search-bar input::placeholder { color: rgba(255,255,255,0.4); }
+  .search-bar button {
+    padding: 0.55rem 0.9rem;
+    background: transparent; border: none;
+    color: rgba(255,255,255,0.5); cursor: pointer; font-size: 1rem;
+    transition: color 0.2s;
+  }
+  .search-bar button:hover { color: var(--amber-light); }
+  .header-actions { margin-left: auto; display: flex; gap: 0.75rem; align-items: center; }
+  .btn-add {
+    padding: 0.55rem 1.25rem;
+    background: var(--amber);
+    color: white; border: none; border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .btn-add:hover { background: var(--amber-light); }
+  .btn-icon {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.1); border: none; border-radius: 3px;
+    color: rgba(255,255,255,0.6); cursor: pointer; font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .btn-icon:hover { background: rgba(255,255,255,0.2); color: white; }
+
+  /* ── FILTER BAR ── */
+  .filter-bar {
+    background: var(--warm-white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 1rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sage); flex-shrink: 0; }
+  .filter-chips { display: flex; gap: 0.5rem; padding: 0.75rem 0; flex-wrap: nowrap; }
+  .chip {
+    padding: 0.3rem 0.9rem;
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.8rem; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    color: var(--espresso);
+    background: transparent;
+    transition: all 0.18s;
+  }
+  .chip:hover { border-color: var(--amber); color: var(--amber); }
+  .chip.active { background: var(--espresso); border-color: var(--espresso); color: var(--cream); }
+  .sort-select {
+    margin-left: auto; flex-shrink: 0;
+    padding: 0.3rem 0.75rem;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    font-size: 0.8rem; font-family: 'DM Sans', sans-serif;
+    background: transparent; color: var(--espresso);
+    cursor: pointer; outline: none;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; font-weight: 700;
+    color: var(--espresso);
+    margin-bottom: 1.25rem;
+    display: flex; align-items: baseline; gap: 0.75rem;
+  }
+  .section-count {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem; color: var(--sage);
+    font-style: normal; font-weight: 400;
+  }
+
+  /* ── RECIPE GRID ── */
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .recipe-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .recipe-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px var(--shadow); }
+  .card-thumb {
+    height: 180px;
+    background: var(--amber-pale);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-thumb img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+  .card-source-badge {
+    position: absolute; top: 10px; right: 10px;
+    padding: 0.2rem 0.5rem;
+    background: rgba(26,18,8,0.75);
+    color: white; border-radius: 3px;
+    font-size: 0.65rem; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase;
+    backdrop-filter: blur(4px);
+  }
+  .card-body { padding: 1rem 1.1rem 1.1rem; }
+  .card-cuisine {
+    font-size: 0.68rem; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--amber); margin-bottom: 0.35rem;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--espresso);
+    line-height: 1.3; margin-bottom: 0.5rem;
+  }
+  .card-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .card-meta-item { font-size: 0.75rem; color: var(--sage); display: flex; align-items: center; gap: 0.25rem; }
+  .card-macros {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0.25rem;
+    background: var(--sage-light);
+    border-radius: 4px;
+    padding: 0.5rem;
+  }
+  .macro-pill { text-align: center; }
+  .macro-val { font-family: 'DM Mono', monospace; font-size: 0.75rem; font-weight: 500; color: var(--espresso); display: block; }
+  .macro-lbl { font-size: 0.6rem; color: var(--sage); letter-spacing: 0.06em; text-transform: uppercase; }
+  .card-tags { display: flex; gap: 0.3rem; flex-wrap: wrap; margin-top: 0.6rem; }
+  .tag {
+    padding: 0.15rem 0.5rem;
+    background: var(--amber-pale);
+    color: var(--amber);
+    border-radius: 2px;
+    font-size: 0.65rem; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .empty-state {
+    grid-column: 1/-1;
+    text-align: center; padding: 5rem 2rem;
+    color: var(--sage);
+  }
+  .empty-state .empty-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.5; }
+  .empty-state h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--espresso); margin-bottom: 0.5rem; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* ── MODAL BASE ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(26,18,8,0.7);
+    z-index: 500;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+    backdrop-filter: blur(3px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--warm-white);
+    border-radius: 8px;
+    width: 100%; max-width: 680px;
+    padding: 2rem;
+    position: relative;
+    margin: auto;
+    transform: translateY(20px);
+    transition: transform 0.25s;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.3);
+  }
+  .modal-overlay.open .modal { transform: translateY(0); }
+  .modal-close {
+    position: absolute; top: 1.25rem; right: 1.25rem;
+    width: 32px; height: 32px;
+    background: var(--border); border: none; border-radius: 50%;
+    cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .modal-close:hover { background: var(--rust-light); color: var(--rust); }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 700;
+    color: var(--espresso); margin-bottom: 0.25rem;
+  }
+  .modal-sub { font-size: 0.85rem; color: var(--sage); margin-bottom: 1.75rem; }
+
+  /* ── ADD RECIPE MODAL ── */
+  .form-group { margin-bottom: 1.25rem; }
+  .form-label { display: block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--espresso); margin-bottom: 0.45rem; }
+  .form-label span { color: var(--sage); font-weight: 400; letter-spacing: 0; text-transform: none; font-size: 0.75rem; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 0.75rem 1rem;
+    border: 2px solid var(--border); border-radius: 4px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    background: var(--cream); color: var(--ink);
+    outline: none; transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--amber); }
+  .form-textarea { resize: vertical; min-height: 100px; }
+  .url-input-wrap { display: flex; gap: 0.5rem; }
+  .url-input-wrap .form-input { flex: 1; }
+  .btn-fetch {
+    padding: 0.75rem 1.25rem;
+    background: var(--espresso); color: var(--cream);
+    border: none; border-radius: 4px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; white-space: nowrap; transition: background 0.2s;
+  }
+  .btn-fetch:hover { background: var(--amber); }
+  .btn-fetch:disabled { opacity: 0.5; cursor: not-allowed; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .source-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border: 2px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .source-tab {
+    flex: 1; padding: 0.65rem 0.5rem;
+    background: transparent; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 600;
+    cursor: pointer; transition: all 0.18s;
+    color: var(--sage);
+  }
+  .source-tab.active { background: var(--espresso); color: var(--cream); }
+  .ai-status {
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .ai-status.loading { background: var(--amber-pale); color: var(--amber); display: flex; align-items: center; gap: 0.5rem; }
+  .ai-status.success { background: var(--sage-light); color: var(--sage); display: flex; align-items: center; gap: 0.5rem; }
+  .ai-status.error { background: var(--rust-light); color: var(--rust); display: flex; align-items: center; gap: 0.5rem; }
+  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid currentColor; border-top-color: transparent; border-radius: 50%; animation: spin 0.7s linear infinite; flex-shrink: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn-primary {
+    width: 100%; padding: 0.9rem;
+    background: var(--espresso); color: var(--cream);
+    border: none; border-radius: 4px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600;
+    cursor: pointer; transition: background 0.2s; margin-top: 0.5rem;
+  }
+  .btn-primary:hover { background: var(--amber); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── RECIPE DETAIL MODAL ── */
+  .detail-modal { max-width: 820px; padding: 0; overflow: hidden; }
+  .detail-hero {
+    height: 240px; background: var(--amber-pale);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5rem; position: relative; overflow: hidden;
+  }
+  .detail-hero img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+  .detail-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(26,18,8,0.7) 0%, transparent 60%);
+  }
+  .detail-hero-badges { position: absolute; bottom: 1rem; left: 1.5rem; display: flex; gap: 0.5rem; }
+  .badge {
+    padding: 0.3rem 0.75rem; border-radius: 3px;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .badge-cuisine { background: var(--amber); color: white; }
+  .badge-source { background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(4px); }
+  .detail-body { padding: 1.75rem 2rem 2rem; }
+  .detail-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 900;
+    color: var(--espresso); margin-bottom: 0.5rem; line-height: 1.2;
+  }
+  .detail-desc { color: var(--sage); font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.7; }
+  .detail-meta-row { display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .detail-meta-item { display: flex; flex-direction: column; gap: 0.1rem; }
+  .detail-meta-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sage); }
+  .detail-meta-val { font-size: 0.95rem; font-weight: 600; color: var(--espresso); }
+  .detail-macros {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem; margin-bottom: 1.75rem;
+    background: var(--sage-light); border-radius: 6px; padding: 1rem;
+  }
+  .detail-macro { text-align: center; }
+  .detail-macro-val { font-family: 'DM Mono', monospace; font-size: 1.3rem; font-weight: 500; color: var(--espresso); display: block; }
+  .detail-macro-lbl { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sage); }
+  .detail-sections { display: grid; grid-template-columns: 1fr 1.4fr; gap: 1.75rem; }
+  .detail-section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: var(--espresso); margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem; border-bottom: 2px solid var(--border);
+  }
+  .ingredients-list { list-style: none; }
+  .ingredients-list li {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem; color: var(--espresso);
+    display: flex; align-items: flex-start; gap: 0.5rem;
+  }
+  .ingredients-list li::before { content: '·'; color: var(--amber); font-weight: 700; flex-shrink: 0; }
+  .steps-list { list-style: none; counter-reset: steps; }
+  .steps-list li {
+    counter-increment: steps;
+    padding: 0.75rem 0 0.75rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem; color: var(--espresso);
+    position: relative; line-height: 1.6;
+  }
+  .steps-list li::before {
+    content: counter(steps);
+    position: absolute; left: 0; top: 0.75rem;
+    width: 1.6rem; height: 1.6rem;
+    background: var(--amber); color: white;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700;
+    font-family: 'DM Mono', monospace;
+  }
+  .detail-video-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.65rem 1.25rem;
+    background: var(--espresso); color: var(--cream);
+    border-radius: 4px; text-decoration: none;
+    font-size: 0.85rem; font-weight: 600;
+    transition: background 0.2s;
+  }
+  .detail-video-link:hover { background: var(--amber); }
+  .detail-actions { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+  .btn-delete {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--rust); border: 2px solid var(--rust);
+    border-radius: 4px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-delete:hover { background: var(--rust); color: white; }
+
+  /* ── EDIT MODE ── */
+  .detail-view-mode, .detail-edit-mode { transition: opacity 0.2s; }
+  .detail-edit-mode { display: none; }
+  .detail-modal.editing .detail-view-mode { display: none; }
+  .detail-modal.editing .detail-edit-mode { display: block; }
+  .btn-edit {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--amber); border: 2px solid var(--amber);
+    border-radius: 4px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem;
+  }
+  .btn-edit:hover { background: var(--amber); color: white; }
+  .btn-edit-save {
+    padding: 0.5rem 1.25rem;
+    background: var(--sage); color: white;
+    border: 2px solid var(--sage);
+    border-radius: 4px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem;
+  }
+  .btn-edit-save:hover { background: #546248; border-color: #546248; }
+  .btn-edit-cancel {
+    padding: 0.5rem 1rem;
+    background: transparent; color: var(--sage);
+    border: 2px solid var(--border);
+    border-radius: 4px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; font-weight: 600; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-edit-cancel:hover { border-color: var(--sage); }
+  .edit-field-group { margin-bottom: 1rem; }
+  .edit-label {
+    display: block; font-size: 0.68rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--sage); margin-bottom: 0.3rem;
+  }
+  .edit-input, .edit-select, .edit-textarea {
+    width: 100%; padding: 0.6rem 0.85rem;
+    border: 1.5px solid var(--border); border-radius: 4px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    background: var(--cream); color: var(--ink);
+    outline: none; transition: border-color 0.2s;
+  }
+  .edit-input:focus, .edit-select:focus, .edit-textarea:focus { border-color: var(--amber); }
+  .edit-textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+  .edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .edit-macro-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 0.5rem; }
+  .edit-image-preview {
+    width: 100%; height: 120px; object-fit: cover;
+    border-radius: 4px; border: 1.5px solid var(--border);
+    margin-bottom: 0.5rem; display: none;
+    background: var(--amber-pale);
+  }
+  .edit-image-preview.visible { display: block; }
+  .edit-section-header {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem; font-weight: 700; color: var(--espresso);
+    margin: 1.25rem 0 0.75rem;
+    padding-bottom: 0.4rem; border-bottom: 2px solid var(--border);
+  }
+
+  /* ── TOASTS ── */
+  #toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 9000; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toast {
+    padding: 0.85rem 1.25rem;
+    background: var(--espresso); color: var(--cream);
+    border-radius: 4px; font-size: 0.875rem;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    animation: slideIn 0.3s ease, fadeOut 0.4s ease 2.6s forwards;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .toast.success { border-left: 4px solid var(--sage); }
+  .toast.error { border-left: 4px solid var(--rust); }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { to { transform: translateX(100%); opacity: 0; } }
+
+  /* ── PASTE FALLBACK ── */
+  .paste-fallback {
+    display: none;
+    margin-top: 0.75rem;
+    border: 2px dashed var(--amber);
+    border-radius: 6px;
+    padding: 1rem;
+    background: var(--amber-pale);
+  }
+  .paste-fallback.visible { display: block; }
+  .paste-fallback-title {
+    font-size: 0.8rem; font-weight: 700;
+    color: var(--amber); margin-bottom: 0.4rem;
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+  .paste-fallback-desc {
+    font-size: 0.8rem; color: var(--espresso);
+    margin-bottom: 0.75rem; line-height: 1.5;
+  }
+  .paste-fallback textarea {
+    width: 100%; padding: 0.65rem 0.85rem;
+    border: 1.5px solid var(--border); border-radius: 4px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+    background: white; color: var(--ink);
+    resize: vertical; min-height: 140px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .paste-fallback textarea:focus { border-color: var(--amber); }
+  .btn-extract-paste {
+    margin-top: 0.6rem; width: 100%;
+    padding: 0.7rem;
+    background: var(--amber); color: white;
+    border: none; border-radius: 4px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-extract-paste:hover { background: var(--espresso); }
+  .btn-extract-paste:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    header { padding: 0 1rem; gap: 0.75rem; }
+    .main { padding: 1.25rem; }
+    .detail-sections { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .detail-macros { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- EDIT PASSWORD GATE MODAL -->
+<div class="modal-overlay" id="edit-gate-modal">
+  <div class="modal" style="max-width:360px;text-align:center;padding:2.5rem 2rem">
+    <div style="font-size:2rem;margin-bottom:0.5rem">🔒</div>
+    <div class="modal-title" style="font-size:1.3rem;margin-bottom:0.25rem">Editor Access</div>
+    <div class="modal-sub" style="margin-bottom:1.5rem">Enter the password to <span id="gate-action-label">edit</span> recipes.</div>
+    <input class="auth-input" type="password" id="gate-pw-input" placeholder="••••••••" autocomplete="current-password"
+      style="margin-bottom:0.75rem;letter-spacing:0.15em;text-align:center">
+    <button class="auth-btn" onclick="checkEditPassword()" style="width:100%">Unlock →</button>
+    <div class="auth-error" id="gate-error" style="margin-top:0.6rem;min-height:1.2em"></div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo" onclick="showView('grid')">The <span>Cookbook</span></div>
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Search by name, ingredient, cuisine…" oninput="filterRecipes()">
+    <button>🔍</button>
+  </div>
+  <div class="header-actions">
+    <button class="btn-add" onclick="openAddModal()">+ Add Recipe</button>
+  </div>
+</header>
+
+<!-- FILTERS -->
+<div class="filter-bar">
+  <div class="filter-label">Cuisine</div>
+  <div class="filter-chips" id="cuisine-chips">
+    <button class="chip active" data-cuisine="all" onclick="setCuisine('all', this)">All</button>
+  </div>
+  <div style="width:1px;height:24px;background:var(--border);flex-shrink:0;margin:0 0.25rem"></div>
+  <div class="filter-label">Meal</div>
+  <div class="filter-chips" id="meal-chips">
+    <button class="chip active" data-meal="all" onclick="setMeal('all', this)">All</button>
+    <button class="chip" data-meal="Breakfast" onclick="setMeal('Breakfast', this)">🍳 Breakfast</button>
+    <button class="chip" data-meal="Lunch" onclick="setMeal('Lunch', this)">🥗 Lunch</button>
+    <button class="chip" data-meal="Dinner" onclick="setMeal('Dinner', this)">🍽️ Dinner</button>
+    <button class="chip" data-meal="Snack" onclick="setMeal('Snack', this)">🥨 Snack</button>
+    <button class="chip" data-meal="Dessert" onclick="setMeal('Dessert', this)">🍰 Dessert</button>
+    <button class="chip" data-meal="Drink" onclick="setMeal('Drink', this)">🥤 Drink</button>
+  </div>
+  <select class="sort-select" id="sort-select" onchange="filterRecipes()">
+    <option value="newest">Newest First</option>
+    <option value="oldest">Oldest First</option>
+    <option value="az">A → Z</option>
+    <option value="za">Z → A</option>
+    <option value="calories">Lowest Cal</option>
+  </select>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="section-title">
+    Recipes <span class="section-count" id="recipe-count">0 recipes</span>
+  </div>
+  <div class="recipe-grid" id="recipe-grid"></div>
+</main>
+
+<!-- ADD RECIPE MODAL -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-modal')">✕</button>
+    <div class="modal-title">Add New Recipe</div>
+    <div class="modal-sub">Paste a recipe URL or social media video link and let AI extract everything.</div>
+
+    <div class="source-tabs">
+      <button class="source-tab active" onclick="setSourceTab('url', this)">🔗 Website URL</button>
+      <button class="source-tab" onclick="setSourceTab('instagram', this)">📸 Instagram</button>
+      <button class="source-tab" onclick="setSourceTab('tiktok', this)">🎵 TikTok</button>
+      <button class="source-tab" onclick="setSourceTab('facebook', this)">👥 Facebook</button>
+      <button class="source-tab" onclick="setSourceTab('manual', this)">✏️ Manual</button>
+    </div>
+
+    <div id="url-section">
+      <div class="form-group">
+        <label class="form-label" id="url-label">Recipe URL <span>— paste the full link</span></label>
+        <div class="url-input-wrap">
+          <input class="form-input" type="url" id="recipe-url" placeholder="https://...">
+          <button class="btn-fetch" onclick="fetchAndExtract()" id="fetch-btn">Extract with AI</button>
+        </div>
+      </div>
+      <div class="ai-status" id="ai-status"></div>
+
+      <!-- PASTE FALLBACK (shown immediately for social, or on URL fail) -->
+      <div class="paste-fallback" id="paste-fallback">
+        <div class="paste-fallback-title" id="paste-fallback-title">⚠️ This site blocked automatic fetching</div>
+        <div class="paste-fallback-desc" id="paste-fallback-desc">
+          No problem! Open the recipe page in your browser, select all the text on the page
+          (<strong>Ctrl+A</strong> / <strong>Cmd+A</strong>), copy it, and paste it below.
+          AI will extract everything from the text.
+        </div>
+        <textarea id="paste-content" placeholder="Paste the recipe text or video description here…"></textarea>
+        <button class="btn-extract-paste" id="paste-btn" onclick="extractFromPaste()">✨ Extract Recipe from Pasted Text</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Recipe Name <span>*</span></label>
+      <input class="form-input" type="text" id="r-name" placeholder="e.g. Grandma's Chicken Soup">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Cuisine Type</label>
+        <input class="form-input" type="text" id="r-cuisine" placeholder="e.g. Italian, Mexican…">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Meal Type</label>
+        <select class="form-select" id="r-meal">
+          <option value="">Select…</option>
+          <option>Breakfast</option><option>Lunch</option><option>Dinner</option>
+          <option>Snack</option><option>Dessert</option><option>Drink</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Prep Time <span>(mins)</span></label>
+        <input class="form-input" type="number" id="r-prep" placeholder="15">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cook Time <span>(mins)</span></label>
+        <input class="form-input" type="number" id="r-cook" placeholder="30">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ingredients <span>— one per line</span></label>
+      <textarea class="form-textarea" id="r-ingredients" placeholder="2 cups flour&#10;1 tsp salt&#10;…"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Instructions <span>— one step per line</span></label>
+      <textarea class="form-textarea" id="r-steps" placeholder="Step 1: …&#10;Step 2: …"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description <span>— optional short summary</span></label>
+      <textarea class="form-textarea" id="r-desc" placeholder="A comforting, hearty dish perfect for cold nights…" style="min-height:70px"></textarea>
+    </div>
+
+    <!-- Macros -->
+    <div class="form-group">
+      <label class="form-label">Nutrition <span>per serving</span></label>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem">
+        <div>
+          <div class="form-label" style="margin-bottom:0.25rem;font-size:0.65rem">Calories</div>
+          <input class="form-input" type="number" id="r-cal" placeholder="350">
+        </div>
+        <div>
+          <div class="form-label" style="margin-bottom:0.25rem;font-size:0.65rem">Protein (g)</div>
+          <input class="form-input" type="number" id="r-protein" placeholder="25">
+        </div>
+        <div>
+          <div class="form-label" style="margin-bottom:0.25rem;font-size:0.65rem">Carbs (g)</div>
+          <input class="form-input" type="number" id="r-carbs" placeholder="40">
+        </div>
+        <div>
+          <div class="form-label" style="margin-bottom:0.25rem;font-size:0.65rem">Fat (g)</div>
+          <input class="form-input" type="number" id="r-fat" placeholder="12">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Tags <span>— comma separated</span></label>
+      <input class="form-input" type="text" id="r-tags" placeholder="gluten-free, high-protein, quick…">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Image URL <span>— optional</span></label>
+      <input class="form-input" type="url" id="r-img" placeholder="https://…">
+    </div>
+
+    <button class="btn-primary" onclick="saveRecipe()" id="save-btn">Save to Cookbook</button>
+  </div>
+</div>
+
+<!-- RECIPE DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal detail-modal" id="detail-modal-inner">
+    <button class="modal-close" onclick="closeModal('detail-modal')" style="top:1rem;right:1rem;z-index:10;background:rgba(255,255,255,0.3);color:white">✕</button>
+
+    <!-- HERO (shared between view + edit) -->
+    <div class="detail-hero" id="d-hero">
+      <span id="d-emoji">🍽️</span>
+      <img id="d-img" style="display:none" alt="">
+      <div class="detail-hero-overlay"></div>
+      <div class="detail-hero-badges">
+        <span class="badge badge-cuisine" id="d-cuisine-badge"></span>
+        <span class="badge badge-source" id="d-source-badge"></span>
+      </div>
+    </div>
+
+    <!-- ── VIEW MODE ── -->
+    <div class="detail-body detail-view-mode">
+      <div class="detail-actions">
+        <button class="btn-edit" id="d-edit-btn" onclick="enterEditMode()">✏️ Edit Recipe</button>
+        <button class="btn-delete" id="d-delete-btn">🗑 Remove</button>
+        <a id="d-original-link" href="#" target="_blank" style="display:none;padding:0.5rem 1rem;background:transparent;color:var(--sage);border:2px solid var(--border);border-radius:4px;font-size:0.8rem;font-weight:600;text-decoration:none;align-items:center;gap:0.4rem">↗ Source</a>
+      </div>
+      <div class="detail-title" id="d-title"></div>
+      <div class="detail-desc" id="d-desc"></div>
+      <div class="detail-meta-row" id="d-meta-row"></div>
+      <div class="detail-macros" id="d-macros"></div>
+      <div class="detail-sections">
+        <div>
+          <div class="detail-section-title">Ingredients</div>
+          <ul class="ingredients-list" id="d-ingredients"></ul>
+        </div>
+        <div>
+          <div class="detail-section-title">Instructions</div>
+          <ol class="steps-list" id="d-steps"></ol>
+        </div>
+      </div>
+      <div id="d-tags" style="margin-top:1rem;display:flex;gap:0.3rem;flex-wrap:wrap"></div>
+      <a id="d-video-link" href="#" target="_blank" class="detail-video-link" style="display:none">▶ Watch Original Video</a>
+    </div>
+
+    <!-- ── EDIT MODE ── -->
+    <div class="detail-body detail-edit-mode" id="edit-panel">
+      <div class="detail-actions">
+        <button class="btn-edit-save" onclick="saveEdit()">💾 Save Changes</button>
+        <button class="btn-edit-cancel" onclick="exitEditMode()">Cancel</button>
+      </div>
+
+      <div class="edit-field-group">
+        <label class="edit-label">Recipe Name</label>
+        <input class="edit-input" type="text" id="e-name">
+      </div>
+
+      <div class="edit-row">
+        <div class="edit-field-group">
+          <label class="edit-label">Cuisine Type</label>
+          <input class="edit-input" type="text" id="e-cuisine" placeholder="Italian, Mexican…">
+        </div>
+        <div class="edit-field-group">
+          <label class="edit-label">Meal Type</label>
+          <select class="edit-select" id="e-meal">
+            <option value="">Select…</option>
+            <option>Breakfast</option><option>Lunch</option><option>Dinner</option>
+            <option>Snack</option><option>Dessert</option><option>Drink</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="edit-field-group">
+        <label class="edit-label">Description</label>
+        <textarea class="edit-textarea" id="e-desc" style="min-height:70px"></textarea>
+      </div>
+
+      <div class="edit-row">
+        <div class="edit-field-group">
+          <label class="edit-label">Prep Time (mins)</label>
+          <input class="edit-input" type="number" id="e-prep">
+        </div>
+        <div class="edit-field-group">
+          <label class="edit-label">Cook Time (mins)</label>
+          <input class="edit-input" type="number" id="e-cook">
+        </div>
+      </div>
+
+      <div class="edit-section-header">🥕 Ingredients</div>
+      <div class="edit-field-group">
+        <label class="edit-label">One ingredient per line</label>
+        <textarea class="edit-textarea" id="e-ingredients" style="min-height:150px"></textarea>
+      </div>
+
+      <div class="edit-section-header">📋 Instructions</div>
+      <div class="edit-field-group">
+        <label class="edit-label">One step per line</label>
+        <textarea class="edit-textarea" id="e-steps" style="min-height:200px"></textarea>
+      </div>
+
+      <div class="edit-section-header">📊 Nutrition (per serving)</div>
+      <div class="edit-macro-row">
+        <div class="edit-field-group"><label class="edit-label">Calories</label><input class="edit-input" type="number" id="e-cal"></div>
+        <div class="edit-field-group"><label class="edit-label">Protein (g)</label><input class="edit-input" type="number" id="e-protein"></div>
+        <div class="edit-field-group"><label class="edit-label">Carbs (g)</label><input class="edit-input" type="number" id="e-carbs"></div>
+        <div class="edit-field-group"><label class="edit-label">Fat (g)</label><input class="edit-input" type="number" id="e-fat"></div>
+      </div>
+
+      <div class="edit-section-header">🏷️ Tags &amp; Image</div>
+      <div class="edit-field-group">
+        <label class="edit-label">Tags (comma separated)</label>
+        <input class="edit-input" type="text" id="e-tags">
+      </div>
+      <div class="edit-field-group">
+        <label class="edit-label">Image</label>
+        <img id="e-img-preview" class="edit-image-preview" alt="preview">
+        <input class="edit-input" type="url" id="e-img" placeholder="https://... paste an image URL">
+        <div style="margin-top:0.5rem;display:flex;align-items:center;gap:0.5rem">
+          <label style="font-size:0.75rem;color:var(--sage)">or upload:</label>
+          <input type="file" id="e-img-file" accept="image/*" style="font-size:0.8rem;color:var(--sage)">
+        </div>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+        <button class="btn-edit-save" onclick="saveEdit()" style="flex:1;justify-content:center">💾 Save Changes</button>
+        <button class="btn-edit-cancel" onclick="exitEditMode()">Cancel</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+// ── CONFIG ──
+const EDIT_PASSWORD = 'Soccer1@@';
+const STORAGE_KEY = 'cookbook_recipes_v2';
+const EMOJI_MAP = { Breakfast:'🍳', Lunch:'🥗', Dinner:'🍽️', Snack:'🥨', Dessert:'🍰', Drink:'🥤', default:'🍽️' };
+
+let recipes = [];
+let currentCuisine = 'all';
+let currentMealType = 'all';
+let currentDetail = null;
+let activeSourceTab = 'url';
+let editUnlocked = false;       // true once correct password entered this session
+let pendingEditAction = null;   // function to call after password confirmed
+
+// ── EDIT GATE ──
+function requireEditPassword(actionLabel, callback) {
+  if (editUnlocked) { callback(); return; }
+  pendingEditAction = callback;
+  document.getElementById('gate-action-label').textContent = actionLabel;
+  document.getElementById('gate-pw-input').value = '';
+  document.getElementById('gate-error').textContent = '';
+  openModal('edit-gate-modal');
+  setTimeout(() => document.getElementById('gate-pw-input').focus(), 100);
+}
+
+function checkEditPassword() {
+  const v = document.getElementById('gate-pw-input').value;
+  if (v === EDIT_PASSWORD) {
+    editUnlocked = true;
+    closeModal('edit-gate-modal');
+    if (pendingEditAction) { pendingEditAction(); pendingEditAction = null; }
+  } else {
+    document.getElementById('gate-error').textContent = 'Incorrect password. Try again.';
+    document.getElementById('gate-pw-input').value = '';
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('gate-pw-input');
+  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkEditPassword(); });
+});
+
+// ── INIT (runs immediately — no login required) ──
+function init() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) recipes = JSON.parse(saved);
+  renderGrid();
+  buildCuisineChips();
+}
+
+function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes)); }
+
+// ── CUISINE CHIPS ──
+function buildCuisineChips() {
+  const cuisines = [...new Set(recipes.map(r => r.cuisine).filter(Boolean))].sort();
+  const container = document.getElementById('cuisine-chips');
+  container.innerHTML = '<button class="chip active" data-cuisine="all" onclick="setCuisine(\'all\', this)">All</button>';
+  cuisines.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'chip';
+    btn.setAttribute('data-cuisine', c);
+    btn.textContent = c;
+    btn.onclick = function() { setCuisine(c, this); };
+    container.appendChild(btn);
+  });
+}
+function setCuisine(c, el) {
+  currentCuisine = c;
+  document.querySelectorAll('#cuisine-chips .chip').forEach(ch => ch.classList.remove('active'));
+  el.classList.add('active');
+  filterRecipes();
+}
+function setMeal(m, el) {
+  currentMealType = m;
+  document.querySelectorAll('#meal-chips .chip').forEach(ch => ch.classList.remove('active'));
+  el.classList.add('active');
+  filterRecipes();
+}
+
+// ── FILTER & RENDER ──
+function filterRecipes() {
+  const q = document.getElementById('search-input').value.toLowerCase();
+  const sort = document.getElementById('sort-select').value;
+  let filtered = recipes.filter(r => {
+    const matchSearch = !q ||
+      r.name?.toLowerCase().includes(q) ||
+      r.cuisine?.toLowerCase().includes(q) ||
+      r.ingredients?.toLowerCase().includes(q) ||
+      r.tags?.toLowerCase().includes(q) ||
+      r.mealType?.toLowerCase().includes(q);
+    const matchCuisine = currentCuisine === 'all' || r.cuisine === currentCuisine;
+    const matchMeal = currentMealType === 'all' || r.mealType === currentMealType;
+    return matchSearch && matchCuisine && matchMeal;
+  });
+  if (sort === 'newest') filtered.sort((a,b) => b.id - a.id);
+  else if (sort === 'oldest') filtered.sort((a,b) => a.id - b.id);
+  else if (sort === 'az') filtered.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sort === 'za') filtered.sort((a,b) => b.name.localeCompare(a.name));
+  else if (sort === 'calories') filtered.sort((a,b) => (a.calories||9999) - (b.calories||9999));
+  renderGrid(filtered);
+}
+
+function renderGrid(list) {
+  const data = list !== undefined ? list : recipes;
+  const grid = document.getElementById('recipe-grid');
+  document.getElementById('recipe-count').textContent = `${data.length} recipe${data.length !== 1 ? 's' : ''}`;
+  if (!data.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="empty-icon">🍳</div><h3>No recipes yet</h3><p>Click <strong>+ Add Recipe</strong> to start building your cookbook.</p></div>`;
+    return;
+  }
+  grid.innerHTML = data.map(r => cardHTML(r)).join('');
+}
+
+function cardHTML(r) {
+  const emoji = EMOJI_MAP[r.mealType] || EMOJI_MAP.default;
+  const thumb = r.imageUrl
+    ? `<img src="${escHtml(r.imageUrl)}" alt="" onerror="this.style.display='none'">`
+    : '';
+  const macros = (r.calories || r.protein) ? `
+    <div class="card-macros">
+      <div class="macro-pill"><span class="macro-val">${r.calories||'—'}</span><span class="macro-lbl">cal</span></div>
+      <div class="macro-pill"><span class="macro-val">${r.protein ? r.protein+'g' : '—'}</span><span class="macro-lbl">protein</span></div>
+      <div class="macro-pill"><span class="macro-val">${r.carbs ? r.carbs+'g' : '—'}</span><span class="macro-lbl">carbs</span></div>
+      <div class="macro-pill"><span class="macro-val">${r.fat ? r.fat+'g' : '—'}</span><span class="macro-lbl">fat</span></div>
+    </div>` : '';
+  const tags = r.tags ? r.tags.split(',').slice(0,3).map(t => `<span class="tag">${escHtml(t.trim())}</span>`).join('') : '';
+  const time = [r.prepTime && `⏱ ${r.prepTime}m prep`, r.cookTime && `🔥 ${r.cookTime}m cook`].filter(Boolean).join(' · ');
+  const sourceBadge = r.source !== 'url' && r.source !== 'manual' ? `<div class="card-source-badge">${r.source}</div>` : '';
+  return `<div class="recipe-card" onclick="openDetail('${r.id}')">
+    <div class="card-thumb">${emoji}${thumb}${sourceBadge}</div>
+    <div class="card-body">
+      <div class="card-cuisine">${escHtml(r.cuisine || 'General')}</div>
+      <div class="card-title">${escHtml(r.name)}</div>
+      ${time ? `<div class="card-meta"><span class="card-meta-item">${time}</span></div>` : ''}
+      ${macros}
+      <div class="card-tags">${tags}</div>
+    </div>
+  </div>`;
+}
+
+
+// ── ROBUST LINE PARSER ──
+function toLines(val) {
+  if (!val) return [];
+  // Already an array
+  if (Array.isArray(val)) return val.map(v => String(v).trim()).filter(Boolean);
+  let s = String(val);
+  // Try parsing as JSON array (stored from extraction)
+  if (s.trim().startsWith('[')) {
+    try {
+      const arr = JSON.parse(s);
+      if (Array.isArray(arr)) return arr.map(v => String(v).trim()).filter(Boolean);
+    } catch {}
+  }
+  // Replace escaped newlines
+  s = s.replace(/\\n/g, '\n').replace(/\\t/g, ' ');
+  // Split on real newlines
+  return s.split('\n').map(l => l.trim()).filter(Boolean);
+}
+
+// ── DETAIL MODAL ──
+function openDetail(id) {
+  const r = recipes.find(x => x.id == id);
+  if (!r) return;
+  currentDetail = r;
+  const emoji = EMOJI_MAP[r.mealType] || EMOJI_MAP.default;
+  document.getElementById('d-emoji').textContent = emoji;
+  const img = document.getElementById('d-img');
+  if (r.imageUrl) { img.src = r.imageUrl; img.style.display = ''; img.onerror = () => img.style.display = 'none'; }
+  else img.style.display = 'none';
+  document.getElementById('d-cuisine-badge').textContent = r.cuisine || 'General';
+  document.getElementById('d-source-badge').textContent = r.source || 'recipe';
+  document.getElementById('d-title').textContent = r.name;
+  document.getElementById('d-desc').textContent = r.description || '';
+
+  // Meta
+  const meta = [];
+  if (r.mealType) meta.push({ label: 'Meal', val: r.mealType });
+  if (r.prepTime) meta.push({ label: 'Prep', val: r.prepTime + ' min' });
+  if (r.cookTime) meta.push({ label: 'Cook', val: r.cookTime + ' min' });
+  if (r.prepTime && r.cookTime) meta.push({ label: 'Total', val: (+r.prepTime + +r.cookTime) + ' min' });
+  document.getElementById('d-meta-row').innerHTML = meta.map(m =>
+    `<div class="detail-meta-item"><span class="detail-meta-label">${m.label}</span><span class="detail-meta-val">${escHtml(m.val)}</span></div>`
+  ).join('');
+
+  // Macros
+  document.getElementById('d-macros').innerHTML = `
+    <div class="detail-macro"><span class="detail-macro-val">${r.calories||'—'}</span><span class="detail-macro-lbl">Calories</span></div>
+    <div class="detail-macro"><span class="detail-macro-val">${r.protein ? r.protein+'g' : '—'}</span><span class="detail-macro-lbl">Protein</span></div>
+    <div class="detail-macro"><span class="detail-macro-val">${r.carbs ? r.carbs+'g' : '—'}</span><span class="detail-macro-lbl">Carbs</span></div>
+    <div class="detail-macro"><span class="detail-macro-val">${r.fat ? r.fat+'g' : '—'}</span><span class="detail-macro-lbl">Fat</span></div>
+  `;
+
+  // Ingredients
+  const ings = toLines(r.ingredients);
+  document.getElementById('d-ingredients').innerHTML = ings.length ? ings.map(i => `<li>${escHtml(i)}</li>`).join('') : '<li>No ingredients listed.</li>';
+
+  // Steps
+  const steps = toLines(r.steps);
+  document.getElementById('d-steps').innerHTML = steps.length ? steps.map(s => `<li>${escHtml(s.replace(/^step\s*\d+[:.-]\s*/i, '').trim())}</li>`).join('') : '<li>No instructions listed.</li>';
+
+  // Tags
+  document.getElementById('d-tags').innerHTML = r.tags ? r.tags.split(',').map(t => `<span class="tag">${escHtml(t.trim())}</span>`).join('') : '';
+
+  // Links
+  const origLink = document.getElementById('d-original-link');
+  if (r.url) { origLink.href = r.url; origLink.style.display = 'inline-flex'; }
+  else origLink.style.display = 'none';
+
+  const vidLink = document.getElementById('d-video-link');
+  if (r.source !== 'url' && r.source !== 'manual' && r.url) { vidLink.href = r.url; vidLink.style.display = 'inline-flex'; }
+  else vidLink.style.display = 'none';
+
+  document.getElementById('d-delete-btn').onclick = () => deleteRecipe(r.id);
+
+  openModal('detail-modal');
+}
+
+function deleteRecipe(id) {
+  requireEditPassword('delete', () => {
+    if (!confirm('Remove this recipe from your cookbook?')) return;
+    recipes = recipes.filter(r => r.id != id);
+    save();
+    buildCuisineChips();
+    filterRecipes();
+    closeModal('detail-modal');
+    toast('Recipe removed', 'success');
+  });
+}
+
+// ── ADD MODAL ──
+function openAddModal() {
+  requireEditPassword('add', () => { clearAddForm(); openModal('add-modal'); });
+}
+
+const SOCIAL_INSTRUCTIONS = {
+  facebook: {
+    title: '📋 How to add a Facebook recipe video',
+    desc: `Facebook blocks all automatic fetching. Here's the easiest way:<br><br>
+      <strong>Option A — Copy the post text:</strong> Open the Facebook video, click <strong>"See more"</strong> on the post caption to expand it, then select and copy all the text in the caption/comments where the recipe is written.<br><br>
+      <strong>Option B — Type the recipe name:</strong> If you know the recipe name, just type it below (e.g. "High Protein Blueberry Bake") and AI will look it up.<br><br>
+      Paste or type below and click Extract.`
+  },
+  instagram: {
+    title: '📋 How to add an Instagram recipe',
+    desc: `Instagram blocks automatic fetching. Here's what to do:<br><br>
+      Open the Instagram post, tap <strong>"more"</strong> on the caption to expand it, then copy all the caption text (the recipe is usually written there). Paste it below and AI will extract everything.`
+  },
+  tiktok: {
+    title: '📋 How to add a TikTok recipe',
+    desc: `TikTok blocks automatic fetching. Here's what to do:<br><br>
+      Open the TikTok video and copy the caption text (recipe creators often write the full recipe there). If it's not in the caption, type the recipe name below and AI will find it.`
+  }
+};
+
+function setSourceTab(tab, el) {
+  activeSourceTab = tab;
+  document.querySelectorAll('.source-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const urlSection = document.getElementById('url-section');
+  const urlLabel = document.getElementById('url-label');
+  const urlInput = document.getElementById('recipe-url');
+  const pasteFallback = document.getElementById('paste-fallback');
+  const pasteTitle = document.getElementById('paste-fallback-title');
+  const pasteDesc = document.getElementById('paste-fallback-desc');
+  const pasteContent = document.getElementById('paste-content');
+  const status = document.getElementById('ai-status');
+
+  // Reset status
+  status.className = 'ai-status'; status.innerHTML = '';
+
+  if (tab === 'manual') {
+    urlSection.style.display = 'none';
+    pasteFallback.classList.remove('visible');
+  } else if (tab === 'url') {
+    urlSection.style.display = '';
+    urlLabel.innerHTML = 'Recipe URL <span>— paste the full link</span>';
+    urlInput.placeholder = 'https://...';
+    pasteFallback.classList.remove('visible');
+    pasteContent.value = '';
+  } else {
+    // Social platform — show paste instructions immediately, hide fetch button
+    urlSection.style.display = '';
+    const info = SOCIAL_INSTRUCTIONS[tab] || {};
+    if (tab === 'instagram') { urlLabel.innerHTML = 'Instagram Link <span>— optional, for reference</span>'; urlInput.placeholder = 'https://www.instagram.com/reel/...'; }
+    else if (tab === 'tiktok') { urlLabel.innerHTML = 'TikTok Link <span>— optional, for reference</span>'; urlInput.placeholder = 'https://www.tiktok.com/@.../video/...'; }
+    else if (tab === 'facebook') { urlLabel.innerHTML = 'Facebook Link <span>— optional, for reference</span>'; urlInput.placeholder = 'https://www.facebook.com/watch/...'; }
+    pasteTitle.innerHTML = info.title || '📋 Paste the recipe text below';
+    pasteDesc.innerHTML = info.desc || 'Copy the recipe text from the post and paste it below.';
+    pasteContent.placeholder = tab === 'facebook'
+      ? 'Paste the post caption text here, OR type the recipe name (e.g. "Garlic Butter Chicken")…'
+      : 'Paste the caption text here, OR type the recipe name…';
+    pasteContent.value = '';
+    pasteFallback.classList.add('visible');
+  }
+}
+
+function clearAddForm() {
+  ['r-name','r-cuisine','r-ingredients','r-steps','r-desc','r-tags','r-img','recipe-url','r-cal','r-protein','r-carbs','r-fat','r-prep','r-cook'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('r-meal').value = '';
+  const status = document.getElementById('ai-status');
+  status.className = 'ai-status'; status.innerHTML = '';
+  document.getElementById('url-section').style.display = '';
+  setSourceTab('url', document.querySelector('.source-tab'));
+}
+
+// ── AI EXTRACTION ──
+
+function extractJSON(raw) {
+  if (!raw) return null;
+  let s = raw.trim();
+  // Strip markdown fences
+  s = s.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+  // Try full parse
+  try { return JSON.parse(s); } catch {}
+  // Find outermost { ... } block
+  const start = s.indexOf('{');
+  const end = s.lastIndexOf('}');
+  if (start !== -1 && end > start) {
+    try { return JSON.parse(s.slice(start, end + 1)); } catch {}
+  }
+  return null;
+}
+
+// Normalize a value that might be an array or newline/pipe-separated string into an array of strings
+function toStringArray(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.map(v => String(v).trim()).filter(Boolean);
+  // Replace escaped newlines
+  let s = String(val).replace(/\\n/g, '\n').replace(/\\t/g, ' ');
+  // Split on actual newlines or pipe separators
+  return s.split(/\n|\|/).map(l => l.trim()).filter(Boolean);
+}
+
+async function fetchAndExtract() {
+  const url = document.getElementById('recipe-url').value.trim();
+  if (!url) { toast('Please enter a URL first', 'error'); return; }
+
+  const status = document.getElementById('ai-status');
+  const btn = document.getElementById('fetch-btn');
+  const pasteFallback = document.getElementById('paste-fallback');
+  btn.disabled = true;
+  pasteFallback.classList.remove('visible');
+
+  const sourceLabels = { instagram: 'Instagram', tiktok: 'TikTok', facebook: 'Facebook', url: 'website' };
+  const sourceLabel = sourceLabels[activeSourceTab] || 'link';
+  const isWebURL = activeSourceTab === 'url';
+
+  status.className = 'ai-status loading';
+  status.innerHTML = `<span class="spinner"></span> Fetching and extracting recipe…`;
+
+  // Step 1: Use web search to pull the recipe content
+  const searchPrompt = isWebURL
+    ? `Search for and retrieve the full recipe at this URL: ${url}
+
+Find and return ALL of the following from the page:
+- Recipe name
+- Cuisine type
+- Meal type (Breakfast, Lunch, Dinner, Snack, Dessert, or Drink)
+- Short description
+- Prep time in minutes
+- Cook time in minutes
+- Complete ingredients list (every single ingredient with amounts)
+- Complete step-by-step instructions (every step)
+- Nutrition info: calories, protein (g), carbs (g), fat (g) per serving
+- Tags or keywords
+- Main image URL from the page
+
+Return everything you find. Be thorough and complete.`
+    : `Search for the recipe shown in this ${sourceLabel} video link: ${url}
+
+Find as much as you can about the recipe: name, ingredients, instructions, nutrition, etc.`;
+
+  let recipe = null;
+  let errorMsg = '';
+
+  try {
+    // Step 1: Search and gather content
+    status.innerHTML = `<span class="spinner"></span> Searching the web for recipe content…`;
+
+    const searchRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 3000,
+        system: "You are a helpful web research assistant. When asked to find recipe content, search thoroughly and return all details you find including every ingredient and every instruction step.",
+        tools: [{ type: "web_search_20250305", name: "web_search" }],
+        messages: [{ role: "user", content: searchPrompt }]
+      })
+    });
+
+    if (!searchRes.ok) throw new Error(`Search API error ${searchRes.status}`);
+    const searchData = await searchRes.json();
+
+    // Collect the full conversation including tool use turns
+    let messages = [{ role: "user", content: searchPrompt }];
+    messages.push({ role: "assistant", content: searchData.content });
+
+    // If tool use happened, loop until end_turn
+    let currentData = searchData;
+    for (let i = 0; i < 8; i++) {
+      const toolBlocks = (currentData.content || []).filter(b => b.type === 'tool_use');
+      if (currentData.stop_reason === 'end_turn' || toolBlocks.length === 0) break;
+
+      // Feed tool results back
+      const toolResults = toolBlocks.map(tb => ({
+        type: 'tool_result',
+        tool_use_id: tb.id,
+        content: tb.input?.query ? `Searched for: ${tb.input.query}` : 'Search performed.'
+      }));
+      messages.push({ role: 'user', content: toolResults });
+
+      const contRes = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 3000,
+          system: "You are a helpful web research assistant. When asked to find recipe content, search thoroughly and return all details you find including every ingredient and every instruction step.",
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          messages
+        })
+      });
+      currentData = await contRes.json();
+      messages.push({ role: 'assistant', content: currentData.content });
+    }
+
+    // Get the final text output from the search phase
+    const searchText = (currentData.content || [])
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('\n');
+
+    status.innerHTML = `<span class="spinner"></span> Structuring recipe data…`;
+
+    // Step 2: Pass the gathered content to Claude to structure as clean JSON
+    const structureRes = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 3000,
+        system: `You are a recipe data structuring assistant. You receive raw recipe content and must output a single valid JSON object with NO other text, NO markdown, NO backticks, NO explanation before or after — just the raw JSON object starting with { and ending with }.
+
+The JSON must have exactly these fields:
+{
+  "name": "full recipe name as a string",
+  "cuisine": "cuisine type as a string e.g. Italian, Mexican, American, Asian, Mediterranean, etc.",
+  "mealType": "exactly one of: Breakfast, Lunch, Dinner, Snack, Dessert, Drink",
+  "description": "2-3 sentence appetizing description as a string",
+  "prepTime": number in minutes or null,
+  "cookTime": number in minutes or null,
+  "ingredients": ["ingredient 1 with amount", "ingredient 2 with amount", "ingredient 3 with amount"],
+  "steps": ["Full text of step 1 as a complete sentence.", "Full text of step 2.", "Full text of step 3."],
+  "calories": number per serving or null,
+  "protein": number in grams per serving or null,
+  "carbs": number in grams per serving or null,
+  "fat": number in grams per serving or null,
+  "tags": "comma, separated, tags",
+  "imageUrl": "https://... direct image url or empty string"
+}
+
+CRITICAL RULES:
+- ingredients MUST be a JSON array of strings, one per ingredient
+- steps MUST be a JSON array of strings, one complete instruction per step — include ALL steps, do not truncate
+- If nutrition info is not available, estimate reasonable values based on the ingredients
+- If imageUrl is not found, use empty string ""
+- Output ONLY the JSON object, nothing else`,
+        messages: [{ role: "user", content: `Here is the recipe content I found. Please structure it into the required JSON format:\n\n${searchText}` }]
+      })
+    });
+
+    if (!structureRes.ok) throw new Error(`Structure API error ${structureRes.status}`);
+    const structureData = await structureRes.json();
+    const structureText = (structureData.content || [])
+      .filter(b => b.type === 'text')
+      .map(b => b.text)
+      .join('');
+
+    console.log('Structure response:', structureText.slice(0, 500));
+    recipe = extractJSON(structureText);
+    if (!recipe?.name) throw new Error('Could not parse recipe JSON');
+
+  } catch (e) {
+    errorMsg = e.message;
+    console.warn('Extraction failed:', e);
+  }
+
+  if (recipe) {
+    fillForm(recipe);
+    status.className = 'ai-status success';
+    status.innerHTML = `✅ Recipe extracted! Review and edit if needed, then save.`;
+    toast('Recipe extracted!', 'success');
+  } else {
+    status.className = 'ai-status error';
+    status.innerHTML = `⚠️ Couldn't fetch this page automatically — it's blocking web requests. Use the paste method below instead.`;
+    pasteFallback.classList.add('visible');
+    document.getElementById('paste-content').value = '';
+    toast('Use the paste method below', 'error');
+  }
+
+  btn.disabled = false;
+}
+
+// ── PASTE FALLBACK EXTRACTION ──
+async function extractFromPaste() {
+  const pastedText = document.getElementById('paste-content').value.trim();
+  if (!pastedText) {
+    toast('Please paste some recipe text or type a recipe name first', 'error');
+    return;
+  }
+  // If it's short, treat it as a recipe name to look up rather than raw content
+  const isRecipeName = pastedText.length < 80 && !pastedText.includes('\n');
+
+  const status = document.getElementById('ai-status');
+  const btn = document.getElementById('paste-btn');
+  btn.disabled = true;
+
+  status.className = 'ai-status loading';
+  status.innerHTML = `<span class="spinner"></span> Extracting recipe from pasted content…`;
+
+  let recipe = null;
+  try {
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 3000,
+        ...(isRecipeName ? { tools: [{ type: "web_search_20250305", name: "web_search" }] } : {}),
+        system: `You are a recipe data structuring assistant. Extract the recipe from the provided text and output a single valid JSON object with NO other text, NO markdown, NO backticks — just raw JSON starting with { and ending with }.
+
+The JSON must have exactly these fields:
+{
+  "name": "full recipe name as a string",
+  "cuisine": "cuisine type e.g. Italian, Mexican, American, Asian, Mediterranean",
+  "mealType": "exactly one of: Breakfast, Lunch, Dinner, Snack, Dessert, Drink",
+  "description": "2-3 sentence appetizing description",
+  "prepTime": number in minutes or null,
+  "cookTime": number in minutes or null,
+  "ingredients": ["ingredient 1 with amount", "ingredient 2 with amount"],
+  "steps": ["Full text of step 1.", "Full text of step 2.", "Full text of step 3."],
+  "calories": number per serving or null,
+  "protein": number in grams per serving or null,
+  "carbs": number in grams per serving or null,
+  "fat": number in grams per serving or null,
+  "tags": "comma, separated, tags",
+  "imageUrl": ""
+}
+
+CRITICAL: ingredients and steps MUST be JSON arrays. Include ALL steps — do not truncate.
+If nutrition info is missing, estimate reasonable values based on the ingredients.`,
+        messages: [{ role: "user", content: isRecipeName
+          ? `Find and extract the complete recipe for: "${pastedText}". Return the full recipe with all ingredients and steps.`
+          : `Extract the recipe from this content:\n\n${pastedText.slice(0, 12000)}` }]
+      })
+    });
+
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    let data = await res.json();
+    // Handle multi-turn tool use if searching by name
+    if (isRecipeName) {
+      let msgs = [
+        { role: 'user', content: isRecipeName
+          ? `Find and extract the complete recipe for: "${pastedText}". Return the full recipe with all ingredients and steps.`
+          : `Extract the recipe from this content:\n\n${pastedText.slice(0, 12000)}` },
+        { role: 'assistant', content: data.content }
+      ];
+      for (let i = 0; i < 6; i++) {
+        const toolBlocks = (data.content || []).filter(b => b.type === 'tool_use');
+        if (data.stop_reason === 'end_turn' || toolBlocks.length === 0) break;
+        msgs.push({ role: 'user', content: toolBlocks.map(tb => ({ type: 'tool_result', tool_use_id: tb.id, content: 'Search done.' })) });
+        const r2 = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 3000,
+            tools: [{ type: "web_search_20250305", name: "web_search" }],
+            system: `You are a recipe data structuring assistant. Output ONLY a raw JSON object.`, messages: msgs })
+        });
+        data = await r2.json();
+        msgs.push({ role: 'assistant', content: data.content });
+      }
+    }
+    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('');
+    recipe = extractJSON(text);
+    if (!recipe?.name) throw new Error('No recipe found in pasted text');
+  } catch (e) {
+    console.warn('Paste extraction failed:', e);
+    status.className = 'ai-status error';
+    status.innerHTML = `⚠️ Couldn't extract from that text. Make sure you copied the full page content and try again.`;
+    btn.disabled = false;
+    return;
+  }
+
+  fillForm(recipe);
+  status.className = 'ai-status success';
+  status.innerHTML = `✅ Recipe extracted from pasted content! Review and save when ready.`;
+  document.getElementById('paste-fallback').classList.remove('visible');
+  toast('Recipe extracted!', 'success');
+  btn.disabled = false;
+}
+
+function fillForm(recipe) {
+  const setVal = (id, val) => {
+    if (val === null || val === undefined) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    const s = Array.isArray(val) ? val.join('\n') : String(val);
+    if (s.trim()) el.value = s.trim();
+  };
+
+  setVal('r-name', recipe.name);
+  setVal('r-cuisine', recipe.cuisine);
+  setVal('r-desc', recipe.description);
+  setVal('r-prep', recipe.prepTime);
+  setVal('r-cook', recipe.cookTime);
+  setVal('r-ingredients', recipe.ingredients); // array → joined with \n
+  setVal('r-steps', recipe.steps);             // array → joined with \n
+  setVal('r-cal', recipe.calories);
+  setVal('r-protein', recipe.protein);
+  setVal('r-carbs', recipe.carbs);
+  setVal('r-fat', recipe.fat);
+  setVal('r-tags', recipe.tags);
+  setVal('r-img', recipe.imageUrl);
+
+  // Meal type dropdown
+  if (recipe.mealType) {
+    const validMeals = ['Breakfast','Lunch','Dinner','Snack','Dessert','Drink'];
+    const meal = validMeals.find(m => m.toLowerCase() === String(recipe.mealType).toLowerCase());
+    if (meal) document.getElementById('r-meal').value = meal;
+  }
+}
+
+// ── EDIT MODE ──
+function enterEditMode() {
+  requireEditPassword('edit', _doEnterEditMode);
+}
+function _doEnterEditMode() {
+  const r = currentDetail;
+  if (!r) return;
+  // Populate edit fields
+  document.getElementById('e-name').value = r.name || '';
+  document.getElementById('e-cuisine').value = r.cuisine || '';
+  document.getElementById('e-meal').value = r.mealType || '';
+  document.getElementById('e-desc').value = r.description || '';
+  document.getElementById('e-prep').value = r.prepTime || '';
+  document.getElementById('e-cook').value = r.cookTime || '';
+  document.getElementById('e-ingredients').value = toLines(r.ingredients).join('\n');
+  document.getElementById('e-steps').value = toLines(r.steps).join('\n');
+  document.getElementById('e-cal').value = r.calories || '';
+  document.getElementById('e-protein').value = r.protein || '';
+  document.getElementById('e-carbs').value = r.carbs || '';
+  document.getElementById('e-fat').value = r.fat || '';
+  document.getElementById('e-tags').value = r.tags || '';
+  document.getElementById('e-img').value = r.imageUrl || '';
+  // Show image preview if exists
+  const preview = document.getElementById('e-img-preview');
+  if (r.imageUrl) { preview.src = r.imageUrl; preview.classList.add('visible'); }
+  else { preview.classList.remove('visible'); }
+  // File input change → preview + base64
+  const fileInput = document.getElementById('e-img-file');
+  fileInput.value = '';
+  fileInput.onchange = function() {
+    const file = fileInput.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('e-img').value = e.target.result;
+      preview.src = e.target.result;
+      preview.classList.add('visible');
+    };
+    reader.readAsDataURL(file);
+  };
+  // URL input change → live preview
+  document.getElementById('e-img').oninput = function() {
+    const val = this.value.trim();
+    if (val) { preview.src = val; preview.classList.add('visible'); preview.onerror = () => preview.classList.remove('visible'); }
+    else preview.classList.remove('visible');
+  };
+  document.getElementById('detail-modal-inner').classList.add('editing');
+  // Scroll edit panel to top
+  document.getElementById('edit-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function exitEditMode() {
+  document.getElementById('detail-modal-inner').classList.remove('editing');
+}
+
+function saveEdit() {
+  const r = currentDetail;
+  if (!r) return;
+  const idx = recipes.findIndex(x => x.id === r.id);
+  if (idx === -1) return;
+
+  const updated = {
+    ...r,
+    name:        document.getElementById('e-name').value.trim() || r.name,
+    cuisine:     document.getElementById('e-cuisine').value.trim(),
+    mealType:    document.getElementById('e-meal').value,
+    description: document.getElementById('e-desc').value.trim(),
+    prepTime:    document.getElementById('e-prep').value,
+    cookTime:    document.getElementById('e-cook').value,
+    ingredients: document.getElementById('e-ingredients').value.trim(),
+    steps:       document.getElementById('e-steps').value.trim(),
+    calories:    document.getElementById('e-cal').value,
+    protein:     document.getElementById('e-protein').value,
+    carbs:       document.getElementById('e-carbs').value,
+    fat:         document.getElementById('e-fat').value,
+    tags:        document.getElementById('e-tags').value.trim(),
+    imageUrl:    document.getElementById('e-img').value.trim(),
+  };
+
+  recipes[idx] = updated;
+  currentDetail = updated;
+  save();
+  buildCuisineChips();
+  filterRecipes();
+  exitEditMode();
+  openDetail(r.id); // Re-render view mode with updated data
+  toast('Recipe updated!', 'success');
+}
+
+// ── SAVE RECIPE ──
+function saveRecipe() {
+  const name = document.getElementById('r-name').value.trim();
+  if (!name) { toast('Please enter a recipe name', 'error'); return; }
+
+  const recipe = {
+    id: Date.now(),
+    source: activeSourceTab,
+    url: document.getElementById('recipe-url').value.trim(),
+    name,
+    cuisine: document.getElementById('r-cuisine').value.trim(),
+    mealType: document.getElementById('r-meal').value,
+    description: document.getElementById('r-desc').value.trim(),
+    prepTime: document.getElementById('r-prep').value,
+    cookTime: document.getElementById('r-cook').value,
+    ingredients: document.getElementById('r-ingredients').value.trim(),
+    steps: document.getElementById('r-steps').value.trim(),
+    calories: document.getElementById('r-cal').value,
+    protein: document.getElementById('r-protein').value,
+    carbs: document.getElementById('r-carbs').value,
+    fat: document.getElementById('r-fat').value,
+    tags: document.getElementById('r-tags').value.trim(),
+    imageUrl: document.getElementById('r-img').value.trim(),
+  };
+
+  recipes.unshift(recipe);
+  save();
+  buildCuisineChips();
+  filterRecipes();
+  closeModal('add-modal');
+  toast(`"${name}" added to your cookbook!`, 'success');
+}
+
+// ── MODAL HELPERS ──
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(overlay.id); });
+});
+
+// ── TOAST ──
+function toast(msg, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = (type === 'success' ? '✓' : '⚠') + ' ' + msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showView(v) { filterRecipes(); }
+
+// Auto-init on load — no password required to browse
+window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
